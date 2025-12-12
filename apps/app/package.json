@@ -34,6 +34,7 @@
     "next-intl": "^3.11.0",
     "react": "^18.2.0",
     "react-confetti-explosion": "^3.0.3",
+    "react-countdown": "^2.3.6",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.43.2",
     "recharts": "2.8.0",
