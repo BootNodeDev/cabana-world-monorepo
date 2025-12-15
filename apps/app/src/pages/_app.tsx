@@ -3,9 +3,13 @@ import type { AppContext, AppInitialProps, AppProps } from 'next/app'
 import App from 'next/app'
 import { base } from 'viem/chains'
 import { WagmiProvider } from 'wagmi'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AppContainer } from '@components/AppContainer'
 import '../styles/globals.css'
 import { wagmiConfig } from '../utils'
+
+// Create a QueryClient instance
+const queryClient = new QueryClient()
 
 export interface CustomAppProps {
   serverProps: {
@@ -15,9 +19,11 @@ export interface CustomAppProps {
 
 export default function MyApp(props: AppProps & CustomAppProps) {
   return (
-    <WagmiProvider config={wagmiConfig}>
-      <AppContainer {...props} />
-    </WagmiProvider>
+    <QueryClientProvider client={queryClient}>
+      <WagmiProvider config={wagmiConfig}>
+        <AppContainer {...props} />
+      </WagmiProvider>
+    </QueryClientProvider>
   )
 }
 
