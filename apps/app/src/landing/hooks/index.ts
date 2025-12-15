@@ -3,4 +3,5 @@
 export * from './useTVL'
 export * from './useNextDrawTime'
 export * from './usePrizeTiers'
+export * from './useLastDrawWinnersByTier'
 

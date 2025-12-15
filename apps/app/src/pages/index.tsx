@@ -1,63 +1,37 @@
-import { useOpenUrl } from '@coinbase/onchainkit/minikit'
-import { Button } from '@shared/ui'
-import { LINKS, SECONDS_PER_DAY } from '@shared/utilities'
-import classNames from 'classnames'
-import { GetStaticProps } from 'next'
-import { useTranslations } from 'next-intl'
-import Link from 'next/link'
-import { getMessages } from 'src/utils'
-import { HomeHeader } from '@components/HomeHeader'
-import { Layout } from '@components/Layout'
-import { PrizePoolCards } from '@components/Prizes/PrizePoolCards'
+import { LastDrawWinners, NextDrawTime, PrizeTiers, TotalDeposited } from 'src/landing/components'
+import { PoolTogetherProvider } from 'src/landing/providers'
 
-interface HomePageProps {
-  messages: IntlMessages
-}
-
-export const getStaticProps: GetStaticProps<HomePageProps> = async ({ locale }) => {
-  const messages = await getMessages(locale)
-
-  return {
-    props: { messages },
-    revalidate: SECONDS_PER_DAY
-  }
-}
-
-export default function HomePage() {
-  const t = useTranslations('Common')
-
+/**
+ * Landing Page - Mini App
+ * 
+ * This is a minimal landing page showcasing a single vault's data:
+ * - Total deposited (TVL)
+ * - Next draw time
+ * - Last draw winners (grouped by tier)
+ * - Prize tiers (amounts and winner counts)
+ * 
+ * All logic is isolated in src/landing/ folder for easy extraction
+ * 
+ * PoolTogetherProvider initializes PrizePool and Vault instances once
+ * and shares them across all components via React Context
+ */
+export default function LandingPage() {
   return (
-    <Layout className='gap-8'>
-      <HomeHeader />
+    <PoolTogetherProvider>
+      <main>
 
-      <Link href='/vaults' passHref={true}>
-        <Button>{t('depositToWin')}</Button>
-      </Link>
-      <PrizePoolCards />
-      <CabanaPoweredBy />
-    </Layout>
+        <TotalDeposited />
+        <br />
+
+        <NextDrawTime />
+        <br />
+
+        <PrizeTiers />
+        <br />
+
+        <LastDrawWinners />
+      </main>
+    </PoolTogetherProvider>
   )
 }
 
-const CabanaPoweredBy = (props: { className?: string }) => {
-  const { className } = props
-
-  const t = useTranslations('Common')
-
-  const openUrl = useOpenUrl()
-
-  return (
-    <div className={classNames('flex gap-2 items-center', className)}>
-      {t('cabanaPoweredBy')}
-      <button onClick={() => openUrl(LINKS.protocolLandingPage)}>
-        <img
-          src='/pooltogether-logo.svg'
-          alt='PoolTogether Logo'
-          width={183}
-          height={72}
-          className='w-24 h-auto'
-        />
-      </button>
-    </div>
-  )
-}
