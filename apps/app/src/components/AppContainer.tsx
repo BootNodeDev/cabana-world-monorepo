@@ -7,9 +7,6 @@ import { Flowbite, Toaster } from '@shared/ui'
 import { NextIntlClientProvider } from 'next-intl'
 import { AppProps } from 'next/app'
 import { ReactNode, useEffect, useState } from 'react'
-import { connectFarcasterWallet } from 'src/utils'
-import { useConnect } from 'wagmi'
-// import { useConnect } from 'wagmi'
 import { CustomAppProps } from '@pages/_app'
 
 export const AppContainer = (props: AppProps & CustomAppProps) => {
@@ -45,12 +42,10 @@ export const AppContainer = (props: AppProps & CustomAppProps) => {
     }
   })
 
-  const { connect } = useConnect()
   const { setFrameReady, isFrameReady } = useMiniKit()
   useEffect(() => {
     if (!isFrameReady) {
       setFrameReady()
-      connectFarcasterWallet(connect)
     }
   }, [isFrameReady, setFrameReady])
 

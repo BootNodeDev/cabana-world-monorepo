@@ -1,11 +1,9 @@
-// import { farcasterMiniApp } from '@farcaster/miniapp-wagmi-connector'
 import { formatNumberForDisplay } from '@shared/utilities'
 import deepmerge from 'deepmerge'
 import { formatUnits } from 'viem'
-import { type Config, createConfig, CreateConnectorFn, http } from 'wagmi'
+import { type Config, createConfig, http } from 'wagmi'
 import { base } from 'wagmi/chains'
 import { baseAccount } from 'wagmi/connectors'
-import { ConnectMutate } from 'wagmi/query'
 
 /**
  * Returns messages for localization through next-intl
@@ -71,7 +69,6 @@ export const addRecentTransaction = (_args: AddRecentTransactionArgs) => {
 export const wagmiConfig: Config = createConfig({
   chains: [base],
   connectors: [
-    // farcasterMiniApp(),
     baseAccount({
       appName: 'Base App'
     })
@@ -80,21 +77,3 @@ export const wagmiConfig: Config = createConfig({
     [base.id]: http(process.env.NEXT_PUBLIC_BASE_RPC_URL)
   }
 })
-
-/**
- * Connects to a Farcaster wallet if available
- */
-export const connectFarcasterWallet = async (connect: ConnectMutate<Config, unknown>) => {
-  const frameSdk = (await import('@farcaster/frame-sdk')).default
-
-  const farcasterContext = await frameSdk.context
-
-  if (!!farcasterContext?.client?.clientFid) {
-    const frameConnector = (
-      await import('@farcaster/frame-wagmi-connector')
-    ).default() as CreateConnectorFn
-
-    connect({ connector: frameConnector })
-    frameSdk.actions.ready()
-  }
-}
