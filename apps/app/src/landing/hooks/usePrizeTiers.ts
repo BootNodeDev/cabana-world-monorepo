@@ -5,8 +5,10 @@ import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
 import {
   useAllPrizeInfo,
   usePrizeTokenData,
-  usePrizeTokenPrice
+  useVaultTokenData
 } from '@generationsoftware/hyperstructure-react-hooks'
+import { useCoingeckoTokenPrices } from '@shared/generic-react-hooks'
+import { lower } from '@shared/utilities'
 
 /**
  * Represents a single tier with all display data
@@ -26,9 +28,11 @@ export interface TierData {
 /**
  * Returns prize tier data
  * Fetches all prize tiers with amounts and winner counts
+ * Uses CoinGecko for token prices instead of Cabana API to avoid CORS issues
+ * Prices are calculated relative to the vault token
  */
 export const usePrizeTiers = () => {
-  const { prizePool } = usePoolTogetherContext()
+  const { prizePool, vault } = usePoolTogetherContext()
 
   // Fetch prize info for all tiers using hyperstructure hook
   const { data: allPrizeInfo, isFetched: isFetchedPrizeInfo } = useAllPrizeInfo(
@@ -38,9 +42,40 @@ export const usePrizeTiers = () => {
   // Fetch prize token data (symbol, decimals, etc.)
   const { data: prizeToken, isFetched: isFetchedPrizeToken } = usePrizeTokenData(prizePool!)
 
-  // Fetch prize token price
-  const { data: prizeTokenPrice, isFetched: isFetchedPrizeTokenPrice } =
-    usePrizeTokenPrice(prizePool!)
+  // Fetch vault token data
+  const { data: vaultToken, isFetched: isFetchedVaultToken } = useVaultTokenData(vault!)
+
+  // Fetch both token prices using CoinGecko (in USD)
+  const tokenAddresses = useMemo(() => {
+    const addresses: string[] = []
+    if (prizeToken?.address) addresses.push(prizeToken.address)
+    if (vaultToken?.address) addresses.push(vaultToken.address)
+    return addresses
+  }, [prizeToken?.address, vaultToken?.address])
+
+  const { data: coingeckoPrices, isFetched: isFetchedCoingeckoPrices } = useCoingeckoTokenPrices(
+    prizePool?.chainId || 0,
+    tokenAddresses,
+    ['usd']
+  )
+
+  // Calculate prize token price relative to vault token
+  const prizeTokenPrice = useMemo(() => {
+    if (!prizeToken || !vaultToken || !coingeckoPrices) return undefined
+
+    const prizeTokenAddressLower = lower(prizeToken.address)
+    const vaultTokenAddressLower = lower(vaultToken.address)
+
+    const prizeTokenPriceUSD = coingeckoPrices[prizeTokenAddressLower]?.usd
+    const vaultTokenPriceUSD = coingeckoPrices[vaultTokenAddressLower]?.usd
+
+    // If we have both prices in USD, calculate relative price
+    if (prizeTokenPriceUSD !== undefined && vaultTokenPriceUSD !== undefined && vaultTokenPriceUSD > 0) {
+      return prizeTokenPriceUSD / vaultTokenPriceUSD
+    }
+
+    return undefined
+  }, [prizeToken, vaultToken, coingeckoPrices])
 
   // Extract prize info for our prize pool
   const prizeInfo = prizePool ? allPrizeInfo?.[prizePool.id] : undefined
@@ -56,9 +91,9 @@ export const usePrizeTiers = () => {
       // Format token amount
       const prizeAmountToken = formatUnits(prizeAmount, prizeToken.decimals)
 
-      // Calculate USD value if price is available
-      const prizeAmountUSD = prizeTokenPrice?.price
-        ? parseFloat(prizeAmountToken) * prizeTokenPrice.price
+      // Calculate value in vault token units if price is available
+      const prizeAmountUSD = prizeTokenPrice !== undefined
+        ? parseFloat(prizeAmountToken) * prizeTokenPrice
         : undefined
 
       return {
@@ -79,7 +114,12 @@ export const usePrizeTiers = () => {
 
   return {
     data: tierData,
-    isFetched: isFetchedPrizeInfo && isFetchedPrizeToken && isFetchedPrizeTokenPrice && !!prizePool
+    isFetched: isFetchedPrizeInfo && 
+               isFetchedPrizeToken && 
+               isFetchedVaultToken && 
+               isFetchedCoingeckoPrices && 
+               !!prizePool &&
+               !!vault
   }
 }
 
