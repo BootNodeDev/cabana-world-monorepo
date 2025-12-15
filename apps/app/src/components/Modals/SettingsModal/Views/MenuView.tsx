@@ -18,7 +18,7 @@ interface MenuViewProps {
   hide?: SettingsModalOption[]
 }
 
-export const MenuView = (props: MenuViewProps) => {
+export const MenuView = (_props: MenuViewProps) => {
   return null
 }
 

@@ -8,7 +8,7 @@ export interface ComposeCastButtonProps {
 
 // When I implemented this it was not working in my beta Base app, however I followed the docs precisely
 // so I assume it should start working soon. If not I will update it when it's properly implemented by Coinbase
-export const ComposeCastButton = (props: ComposeCastButtonProps) => {
+export const ComposeCastButton = (_props: ComposeCastButtonProps) => {
   return (
     null
   )

@@ -10,6 +10,6 @@ export interface ExternalLinkProps {
   iconClassName?: string
 }
 
-export const ExternalLink = (props: ExternalLinkProps) => {
+export const ExternalLink = (_props: ExternalLinkProps) => {
   return null
 }

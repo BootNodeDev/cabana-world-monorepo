@@ -38,6 +38,6 @@ export default function HomePage() {
   )
 }
 
-const CabanaPoweredBy = (props: { className?: string }) => {
+const CabanaPoweredBy = (_props: { className?: string }) => {
   return null
 }

@@ -149,6 +149,6 @@ interface DepositDisclaimerProps {
   vault: Vault
 }
 
-const DepositDisclaimer = (props: DepositDisclaimerProps) => {
+const DepositDisclaimer = (_props: DepositDisclaimerProps) => {
   return null
 }
