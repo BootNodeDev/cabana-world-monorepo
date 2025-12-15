@@ -1,14 +1,14 @@
-import { PrizeInfo } from '@shared/types'
-import { useMemo } from 'react'
-import { formatUnits } from 'viem'
-import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
 import {
   useAllPrizeInfo,
   usePrizeTokenData,
   useVaultTokenData
 } from '@generationsoftware/hyperstructure-react-hooks'
 import { useCoingeckoTokenPrices } from '@shared/generic-react-hooks'
+import { PrizeInfo } from '@shared/types'
 import { lower } from '@shared/utilities'
+import { useMemo } from 'react'
+import { formatUnits } from 'viem'
+import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
 
 /**
  * Represents a single tier with all display data
@@ -70,7 +70,11 @@ export const usePrizeTiers = () => {
     const vaultTokenPriceUSD = coingeckoPrices[vaultTokenAddressLower]?.usd
 
     // If we have both prices in USD, calculate relative price
-    if (prizeTokenPriceUSD !== undefined && vaultTokenPriceUSD !== undefined && vaultTokenPriceUSD > 0) {
+    if (
+      prizeTokenPriceUSD !== undefined &&
+      vaultTokenPriceUSD !== undefined &&
+      vaultTokenPriceUSD > 0
+    ) {
       return prizeTokenPriceUSD / vaultTokenPriceUSD
     }
 
@@ -92,9 +96,8 @@ export const usePrizeTiers = () => {
       const prizeAmountToken = formatUnits(prizeAmount, prizeToken.decimals)
 
       // Calculate value in vault token units if price is available
-      const prizeAmountUSD = prizeTokenPrice !== undefined
-        ? parseFloat(prizeAmountToken) * prizeTokenPrice
-        : undefined
+      const prizeAmountUSD =
+        prizeTokenPrice !== undefined ? parseFloat(prizeAmountToken) * prizeTokenPrice : undefined
 
       return {
         tier,
@@ -114,12 +117,12 @@ export const usePrizeTiers = () => {
 
   return {
     data: tierData,
-    isFetched: isFetchedPrizeInfo && 
-               isFetchedPrizeToken && 
-               isFetchedVaultToken && 
-               isFetchedCoingeckoPrices && 
-               !!prizePool &&
-               !!vault
+    isFetched:
+      isFetchedPrizeInfo &&
+      isFetchedPrizeToken &&
+      isFetchedVaultToken &&
+      isFetchedCoingeckoPrices &&
+      !!prizePool &&
+      !!vault
   }
 }
-
