@@ -1,4 +1,4 @@
-import { TokenAmount, TokenValue } from '@shared/react-components'
+import { TokenAmount, CurrencyValue } from '@shared/react-components'
 import { usePrizeTiers } from '../hooks'
 import { TIER_MAPPING, TIER_FALLBACK } from '../constants'
 
@@ -39,15 +39,23 @@ export const PrizeTiers = () => {
               {tierConfig.emoji} {tierConfig.name}
             </div>
             <div>
-              <TokenValue
-                token={prizeToken}
-                fallback={
-                  <TokenAmount
-                    token={prizeToken}
-                    maximumFractionDigits={4}
-                  />
-                }
-              />
+              {tier.prizeAmountUSD !== undefined ? (
+                <CurrencyValue
+                  baseValue={tier.prizeAmountUSD}
+                  baseCurrency="usd"
+                  fallback={
+                    <TokenAmount
+                      token={prizeToken}
+                      maximumFractionDigits={4}
+                    />
+                  }
+                />
+              ) : (
+                <TokenAmount
+                  token={prizeToken}
+                  maximumFractionDigits={4}
+                />
+              )}
             </div>
             <div>{winnersText}</div>
           </div>
