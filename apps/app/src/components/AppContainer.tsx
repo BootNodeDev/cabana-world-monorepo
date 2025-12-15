@@ -1,4 +1,3 @@
-import { useMiniKit } from '@coinbase/onchainkit/minikit'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useSelectedLanguage } from '@shared/generic-react-hooks'
 import { ErrorPooly } from '@shared/react-components'
@@ -41,13 +40,6 @@ export const AppContainer = (props: AppProps & CustomAppProps) => {
       }, 100)
     }
   })
-
-  const { setFrameReady, isFrameReady } = useMiniKit()
-  useEffect(() => {
-    if (!isFrameReady) {
-      setFrameReady()
-    }
-  }, [isFrameReady, setFrameReady])
 
   useEffect(() => {
     if ('serviceWorker' in navigator) {

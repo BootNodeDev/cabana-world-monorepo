@@ -1,4 +1,3 @@
-import { useOpenUrl } from '@coinbase/onchainkit/minikit'
 import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline'
 import classNames from 'classnames'
 import { ReactNode } from 'react'
@@ -12,46 +11,5 @@ export interface ExternalLinkProps {
 }
 
 export const ExternalLink = (props: ExternalLinkProps) => {
-  const { href, children, size, className, iconClassName } = props
-
-  const openUrl = useOpenUrl()
-
-  const ensPaddedHref =
-    !!href &&
-    href.endsWith('.eth') &&
-    !href.startsWith('http') &&
-    !href.startsWith('www.') &&
-    !href.startsWith('//')
-      ? `//${href}`
-      : undefined
-
-  return (
-    <button
-      onClick={() => {
-        openUrl(ensPaddedHref ?? href)
-      }}
-      rel='noreferrer'
-      className={classNames(
-        'inline-flex items-center gap-1',
-        { 'text-xs': size === 'xs' },
-        { 'text-sm': size === 'sm' },
-        { 'text-base': size === 'md' || !size },
-        { 'text-lg': size === 'lg' },
-        className
-      )}
-    >
-      {children}
-      <ArrowTopRightOnSquareIcon
-        className={classNames(
-          'text-inherit shrink-0',
-          {
-            'h-4 w-4': size === 'xs' || size === 'sm',
-            'h-5 w-5': size === 'md' || !size,
-            'h-6 w-6': size === 'lg'
-          },
-          iconClassName
-        )}
-      />
-    </button>
-  )
+  return null
 }

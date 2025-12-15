@@ -1,4 +1,3 @@
-import { useOpenUrl } from '@coinbase/onchainkit/minikit'
 import { ArrowTopRightOnSquareIcon, SparklesIcon } from '@heroicons/react/24/outline'
 import {
   SUPPORTED_CURRENCIES,
@@ -20,60 +19,7 @@ interface MenuViewProps {
 }
 
 export const MenuView = (props: MenuViewProps) => {
-  const { disable, hide } = props
-
-  const openUrl = useOpenUrl()
-
-  const t = useTranslations('Settings')
-
-  const { setView: setSettingsModalView } = useSettingsModalView()
-
-  const { selectedCurrency } = useSelectedCurrency()
-  const { selectedLanguage } = useSelectedLanguage()
-  const { acceptHeaderLanguage } = useAcceptHeaderLanguage()
-
-  return (
-    <div className='flex flex-col gap-4'>
-      <SettingsMenuSection
-        title={t('customizeExperience')}
-        items={[
-          {
-            iconContent: selectedLanguage?.toUpperCase() || acceptHeaderLanguage.toUpperCase(),
-            iconClassName: '!text-base font-semibold',
-            title: t('changeLanguage'),
-            onClick: () => setSettingsModalView('language'),
-            disabled: disable?.includes('language'),
-            hidden: hide?.includes('language')
-          },
-          {
-            iconContent: SUPPORTED_CURRENCIES[selectedCurrency].symbol,
-            title: t('changeCurrency'),
-            onClick: () => setSettingsModalView('currency'),
-            disabled: disable?.includes('currency'),
-            hidden: hide?.includes('currency')
-          },
-          {
-            iconContent: <SparklesIcon className='h-6 w-6 text-pt-purple-100' />,
-            title: t('viewEcosystem'),
-            onClick: () => openUrl(LINKS.ecosystem),
-            isExternalLink: true
-          }
-        ]}
-      />
-      <SettingsMenuSection
-        title={t('getHelp')}
-        items={[
-          {
-            iconContent: '?',
-            iconClassName: 'font-semibold',
-            title: t('getHelpWithCabana'),
-            onClick: () => openUrl(LINKS.docs),
-            isExternalLink: true
-          }
-        ]}
-      />
-    </div>
-  )
+  return null
 }
 
 interface SettingsMenuSectionProps {

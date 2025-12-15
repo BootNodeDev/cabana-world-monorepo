@@ -1,4 +1,3 @@
-import { useOpenUrl } from '@coinbase/onchainkit/minikit'
 import { Vault } from '@generationsoftware/hyperstructure-client-js'
 import {
   useSelectedVault,
@@ -151,30 +150,5 @@ interface DepositDisclaimerProps {
 }
 
 const DepositDisclaimer = (props: DepositDisclaimerProps) => {
-  const { vault } = props
-
-  const openUrl = useOpenUrl()
-
-  const t_modals = useTranslations('TxModals')
-
-  return (
-    <span className='text-sm text-pt-purple-100 text-center leading-normal'>
-      {t_modals.rich('depositDisclaimer', {
-        tosLink: (chunks) => (
-          <button onClick={() => openUrl(LINKS.termsOfService)} className='text-pt-purple-300'>
-            {chunks}
-          </button>
-        ),
-        vaultLink: (chunks) => (
-          <a
-            href={`/vault/${vault.chainId}/${vault.address}`}
-            target='_blank'
-            className='text-pt-purple-300'
-          >
-            {chunks}
-          </a>
-        )
-      })}
-    </span>
-  )
+  return null
 }
