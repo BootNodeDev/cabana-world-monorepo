@@ -8,6 +8,7 @@ import { Address } from 'viem'
 interface ContextValue {
   wallet: Address | undefined
   isConnected: boolean
+  isConnecting: boolean
   isWebView: boolean
   authenticate: () => Promise<void>
   disconnect: () => void
@@ -22,6 +23,7 @@ const Context = createContext<ContextValue | undefined>(undefined)
 export const LemonProvider = ({ children }: { children: ReactNode }) => {
   const [wallet, setWallet] = useState<Address | undefined>(undefined)
   const [isConnected, setIsConnected] = useState<boolean>(false)
+  const [isConnecting, setIsConnecting] = useState<boolean>(false)
   const [isInWebView, setIsInWebView] = useState<boolean>(false)
 
   // Check if running in WebView environment
@@ -32,6 +34,13 @@ export const LemonProvider = ({ children }: { children: ReactNode }) => {
     checkWebView()
   }, [])
 
+  // Auto-authenticate when WebView is detected
+  useEffect(() => {
+    if (isInWebView && !isConnected) {
+      handleAuthenticate()
+    }
+  }, [isInWebView, isConnected, handleAuthenticate])
+
   // Authenticate user with Lemon SDK
   const handleAuthenticate = useCallback(async () => {
     if (!isInWebView) {
@@ -39,6 +48,7 @@ export const LemonProvider = ({ children }: { children: ReactNode }) => {
       return
     }
 
+    setIsConnecting(true)
     try {
       const result = await authenticate()
 
@@ -52,6 +62,8 @@ export const LemonProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('Error during authentication:', error)
+    } finally {
+      setIsConnecting(false)
     }
   }, [isInWebView])
 
@@ -65,11 +77,12 @@ export const LemonProvider = ({ children }: { children: ReactNode }) => {
     () => ({
       wallet,
       isConnected,
+      isConnecting,
       isWebView: isInWebView,
       authenticate: handleAuthenticate,
       disconnect: handleDisconnect
     }),
-    [wallet, isConnected, isInWebView, handleAuthenticate, handleDisconnect]
+    [wallet, isConnected, isConnecting, isInWebView, handleAuthenticate, handleDisconnect]
   )
 
   return <Context.Provider value={value}>{children}</Context.Provider>

@@ -14,7 +14,7 @@ import { LemonProvider, PoolTogetherProvider, useLemonContext } from 'src/landin
  * Main content component that checks WebView environment
  */
 const LandingContent = () => {
-  const { isWebView, isConnected, wallet } = useLemonContext()
+  const { isWebView, isConnecting, wallet } = useLemonContext()
 
   if (!isWebView) {
     return <LemonWebViewError />
@@ -23,22 +23,22 @@ const LandingContent = () => {
   return (
     <PoolTogetherProvider>
       <main className="p-4">
-        {!isConnected ? (
+        {isConnecting ? (
           <>
-            <LemonConnect />
+            loading...
+
+          </>
+        ) : wallet === undefined ? (
+          <div>something went wrong</div>
+        ) : (
+          <>
+            <LemonWallet />
+            <br />
+
+            <LemonDeposit />
             <br />
           </>
-        ) : wallet === undefined ?
-          <div>something went wrong</div>
-          : (
-            <>
-              <LemonWallet />
-              <br />
-
-              <LemonDeposit />
-              <br />
-            </>
-          )}
+        )}
 
         <TotalDeposited />
         <br />
