@@ -7,7 +7,7 @@ import { useLemonContext } from '../providers/LemonProvider'
 /**
  * USDC token address on Base chain
  */
-const USDC_BASE_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54b90Dc9eA' as Address
+const USDC_BASE_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as Address
 
 /**
  * Returns the USDC balance for the Lemon wallet
