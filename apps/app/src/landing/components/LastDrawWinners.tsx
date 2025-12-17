@@ -1,4 +1,4 @@
-import { TokenValue } from '@shared/react-components'
+import { CurrencyValue } from '@shared/react-components'
 import { usePrizeTiers, useLastDrawWinnersByTier } from '../hooks'
 import { TIER_MAPPING, TIER_FALLBACK } from '../constants'
 
@@ -38,14 +38,10 @@ export const LastDrawWinners = () => {
           // Calculate total payout for this tier (sum of all winners' payouts)
           const totalPayout = tierWinners.reduce((sum, winner) => sum + winner.payout, 0n)
 
-          // Use the prize token data (from prize pool) for displaying amounts
-          const totalPayoutTokenData = {
-            chainId: tier.chainId,
-            address: tier.tokenAddress as `0x${string}`,
-            amount: totalPayout,
-            decimals: tier.tokenDecimals,
-            symbol: tier.tokenSymbol
-          }
+          const totalPayoutUSD = tierWinners.reduce(
+            (sum, winner) => sum + (winner.payoutUSD || 0),
+            0
+          )
 
           return (
             <div key={tier.tier} className="flex flex-row items-center gap-4">
@@ -55,9 +51,11 @@ export const LastDrawWinners = () => {
               <div className="flex-1">
                 {winnerCount > 0 ? (
                   <>
-                    <TokenValue
-                      token={totalPayoutTokenData}
-                    />{' '}
+                    {totalPayoutUSD > 0 ? (
+                      <CurrencyValue baseValue={totalPayoutUSD} baseCurrency="usd" />
+                    ) : (
+                      <span className="text-gray-400 italic">No disponible</span>
+                    )}{' '}
                     entre {winnerCount === 1 ? '1 ganador' : `${winnerCount} ganadores`}
                   </>
                 ) : (

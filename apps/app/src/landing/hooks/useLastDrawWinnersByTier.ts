@@ -2,8 +2,9 @@ import { NO_REFETCH } from '@shared/generic-react-hooks'
 import { lower, SUBGRAPH_API_URLS } from '@shared/utilities'
 import { useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { Address } from 'viem'
+import { Address, formatUnits } from 'viem'
 import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
+import { usePrizeTokenPriceUSD } from './usePrizeTokenPriceUSD'
 
 /**
  * Represents a winner for a specific tier
@@ -11,6 +12,7 @@ import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
 export interface TierWinner {
   winner: Address
   payout: bigint
+  payoutUSD: number | undefined
 }
 
 /**
@@ -40,6 +42,7 @@ interface PrizeClaim {
  */
 export const useLastDrawWinnersByTier = () => {
   const { prizePool, vault } = usePoolTogetherContext()
+  const { prizeToken, prizeTokenPriceUSD, isFetched: isFetchedPrice } = usePrizeTokenPriceUSD()
 
   // Fetch last draw with all prize claims for the specific vault
   const { data: lastDraw, isFetched } = useQuery({
@@ -121,9 +124,6 @@ export const useLastDrawWinnersByTier = () => {
       }
       const prizeClaims: SubgraphPrizeClaim[] = prizeClaimsData?.data?.prizeClaims || []
 
-      // Use the timestamp from the first prize claim as the draw timestamp
-      const drawTimestamp = prizeClaims.length > 0 ? parseInt(prizeClaims[0].timestamp) : null
-
       return {
         drawId: lastDrawId,
         prizeClaims: prizeClaims.map(
@@ -150,12 +150,18 @@ export const useLastDrawWinnersByTier = () => {
 
     lastDraw.prizeClaims.forEach((claim: PrizeClaim) => {
       if (claim.payout > 0n) {
+        // Calculate USD value if price is available
+        const payoutToken = formatUnits(claim.payout, prizeToken?.decimals || 18)
+        const payoutUSD =
+          prizeTokenPriceUSD !== undefined ? parseFloat(payoutToken) * prizeTokenPriceUSD : undefined
+
         if (!grouped[claim.tier]) {
           grouped[claim.tier] = []
         }
         grouped[claim.tier].push({
           winner: claim.winner,
-          payout: claim.payout
+          payout: claim.payout,
+          payoutUSD
         })
       }
     })
@@ -168,6 +174,6 @@ export const useLastDrawWinnersByTier = () => {
 
   return {
     data: winnersByTier,
-    isFetched
+    isFetched: isFetched && isFetchedPrice
   }
 }

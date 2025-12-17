@@ -1,10 +1,9 @@
-import { useAllPrizeInfo, usePrizeTokenData } from '@generationsoftware/hyperstructure-react-hooks'
-import { useCoingeckoTokenPrices } from '@shared/generic-react-hooks'
+import { useAllPrizeInfo } from '@generationsoftware/hyperstructure-react-hooks'
 import { PrizeInfo } from '@shared/types'
-import { lower } from '@shared/utilities'
 import { useMemo } from 'react'
 import { formatUnits } from 'viem'
 import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
+import { usePrizeTokenPriceUSD } from './usePrizeTokenPriceUSD'
 
 /**
  * Represents a single tier with all display data
@@ -29,29 +28,12 @@ export interface TierData {
  */
 export const usePrizeTiers = () => {
   const { prizePool } = usePoolTogetherContext()
+  const { prizeToken, prizeTokenPriceUSD, isFetched: isFetchedPrice } = usePrizeTokenPriceUSD()
 
   // Fetch prize info for all tiers using hyperstructure hook
   const { data: allPrizeInfo, isFetched: isFetchedPrizeInfo } = useAllPrizeInfo(
     prizePool ? [prizePool] : []
   )
-
-  // Fetch prize token data (symbol, decimals, etc.)
-  const { data: prizeToken, isFetched: isFetchedPrizeToken } = usePrizeTokenData(prizePool!)
-
-  // Fetch prize token price using CoinGecko (in USD)
-  const { data: coingeckoPrices, isFetched: isFetchedCoingeckoPrices } = useCoingeckoTokenPrices(
-    prizePool?.chainId || 0,
-    prizeToken?.address ? [prizeToken.address] : [],
-    ['usd']
-  )
-
-  // Get prize token price in USD
-  const prizeTokenPriceUSD = useMemo(() => {
-    if (!prizeToken || !coingeckoPrices) return undefined
-
-    const prizeTokenAddressLower = lower(prizeToken.address)
-    return coingeckoPrices[prizeTokenAddressLower]?.usd
-  }, [prizeToken, coingeckoPrices])
 
   // Extract prize info for our prize pool
   const prizeInfo = prizePool ? allPrizeInfo?.[prizePool.id] : undefined
@@ -91,6 +73,6 @@ export const usePrizeTiers = () => {
 
   return {
     data: tierData,
-    isFetched: isFetchedPrizeInfo && isFetchedPrizeToken && isFetchedCoingeckoPrices && !!prizePool
+    isFetched: isFetchedPrizeInfo && isFetchedPrice && !!prizePool
   }
 }
