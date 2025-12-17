@@ -1,5 +1,6 @@
 import {
   LastDrawWinners,
+  LemonConnect,
   LemonDeposit,
   LemonWallet,
   LemonWebViewError,
@@ -13,20 +14,31 @@ import { LemonProvider, PoolTogetherProvider, useLemonContext } from 'src/landin
  * Main content component that checks WebView environment
  */
 const LandingContent = () => {
-  const { isWebView } = useLemonContext()
+  const { isWebView, isConnected, wallet } = useLemonContext()
 
-  // if (!isWebView) {
-  //   return <LemonWebViewError />
-  // }
+  if (!isWebView) {
+    return <LemonWebViewError />
+  }
 
   return (
     <PoolTogetherProvider>
       <main>
-        <LemonWallet />
-        <br />
+        {!isConnected ? (
+          <>
+            <LemonConnect />
+            <br />
+          </>
+        ) : wallet === undefined ?
+          <div>something went wrong</div>
+          : (
+            <>
+              <LemonWallet />
+              <br />
 
-        <LemonDeposit />
-        <br />
+              <LemonDeposit />
+              <br />
+            </>
+          )}
 
         <TotalDeposited />
         <br />

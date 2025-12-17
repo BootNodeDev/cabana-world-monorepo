@@ -22,8 +22,8 @@ export const useLemonUsdcBalance = (): {
 
   const { data, isFetched, refetch } = useTokenBalance(
     NETWORK.base,
-    wallet || ('0x0000000000000000000000000000000000000000' as Address),
-    USDC_BASE_ADDRESS
+    wallet?.toLowerCase() as Address,
+    USDC_BASE_ADDRESS.toLowerCase() as Address
   )
 
   return {
