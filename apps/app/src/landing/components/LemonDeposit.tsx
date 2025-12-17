@@ -6,7 +6,7 @@ import { useLemonUsdcBalance } from '../hooks'
 /**
  * Fixed deposit amounts in USDC
  */
-const FIXED_AMOUNTS = [10, 20, 50, 100] as const
+const FIXED_AMOUNTS = [1, 2, 5, 10] as const
 
 /**
  * Displays deposit buttons for fixed amounts and custom input
