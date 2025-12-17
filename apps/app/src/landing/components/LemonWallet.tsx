@@ -11,7 +11,8 @@ export const LemonWallet = () => {
 
   // Format wallet address for display (first 6 + last 4 characters)
   const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`
+    //return `${address.slice(0, 6)}...${address.slice(-4)}`
+    return address
   }
 
   // Format USDC balance
