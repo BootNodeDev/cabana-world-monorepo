@@ -22,7 +22,7 @@ const LandingContent = () => {
 
   return (
     <PoolTogetherProvider>
-      <main>
+      <main className="p-4">
         {!isConnected ? (
           <>
             <LemonConnect />
