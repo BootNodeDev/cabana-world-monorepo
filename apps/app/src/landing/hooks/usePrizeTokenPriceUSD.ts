@@ -1,14 +1,21 @@
 import { usePrizeTokenData } from '@generationsoftware/hyperstructure-react-hooks'
 import { useCoingeckoTokenPrices } from '@shared/generic-react-hooks'
+import type { TokenWithSupply } from '@shared/types'
 import { lower } from '@shared/utilities'
 import { useMemo } from 'react'
 import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
+
+type PrizeTokenPriceUSDResult = {
+  prizeToken?: TokenWithSupply
+  prizeTokenPriceUSD?: number
+  isFetched: boolean
+}
 
 /**
  * Returns the prize token price in USD using CoinGecko
  * Reusable hook for getting prize token price without CORS issues
  */
-export const usePrizeTokenPriceUSD = () => {
+export const usePrizeTokenPriceUSD = (): PrizeTokenPriceUSDResult => {
   const { prizePool } = usePoolTogetherContext()
 
   // Fetch prize token data (symbol, decimals, etc.)
@@ -35,5 +42,3 @@ export const usePrizeTokenPriceUSD = () => {
     isFetched: isFetchedPrizeToken && isFetchedCoingeckoPrices && !!prizePool
   }
 }
-
-
