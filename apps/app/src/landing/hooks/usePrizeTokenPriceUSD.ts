@@ -1,12 +1,19 @@
 import { usePrizeTokenData } from '@generationsoftware/hyperstructure-react-hooks'
 import { useCoingeckoTokenPrices } from '@shared/generic-react-hooks'
-import type { TokenWithSupply } from '@shared/types'
 import { lower } from '@shared/utilities'
 import { useMemo } from 'react'
+import { Address } from 'viem'
 import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
 
+type PrizeTokenMinimal = {
+  address: Address
+  chainId: number
+  decimals: number
+  symbol?: string
+}
+
 type PrizeTokenPriceUSDResult = {
-  prizeToken?: TokenWithSupply
+  prizeToken?: PrizeTokenMinimal
   prizeTokenPriceUSD?: number
   isFetched: boolean
 }
@@ -24,7 +31,7 @@ export const usePrizeTokenPriceUSD = (): PrizeTokenPriceUSDResult => {
   // Fetch prize token price using CoinGecko (in USD)
   const { data: coingeckoPrices, isFetched: isFetchedCoingeckoPrices } = useCoingeckoTokenPrices(
     prizePool?.chainId || 0,
-    prizeToken?.address ? [prizeToken.address] : [],
+    prizeToken?.address ? [lower(prizeToken.address)] : [],
     ['usd']
   )
 
