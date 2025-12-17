@@ -26,21 +26,6 @@ export const LemonProvider = ({ children }: { children: ReactNode }) => {
   const [isConnecting, setIsConnecting] = useState<boolean>(false)
   const [isInWebView, setIsInWebView] = useState<boolean>(false)
 
-  // Check if running in WebView environment
-  useEffect(() => {
-    const checkWebView = () => {
-      setIsInWebView(isWebView())
-    }
-    checkWebView()
-  }, [])
-
-  // Auto-authenticate when WebView is detected
-  useEffect(() => {
-    if (isInWebView && !isConnected) {
-      handleAuthenticate()
-    }
-  }, [isInWebView, isConnected, handleAuthenticate])
-
   // Authenticate user with Lemon SDK
   const handleAuthenticate = useCallback(async () => {
     if (!isInWebView) {
@@ -66,6 +51,23 @@ export const LemonProvider = ({ children }: { children: ReactNode }) => {
       setIsConnecting(false)
     }
   }, [isInWebView])
+
+  // Check if running in WebView environment
+  useEffect(() => {
+    const checkWebView = () => {
+      setIsInWebView(isWebView())
+    }
+    checkWebView()
+  }, [])
+
+  // Auto-authenticate when WebView is detected
+  useEffect(() => {
+    if (isInWebView && !isConnected) {
+      handleAuthenticate()
+    }
+  }, [isInWebView, isConnected, handleAuthenticate])
+
+
 
   // Disconnect wallet
   const handleDisconnect = useCallback(() => {
