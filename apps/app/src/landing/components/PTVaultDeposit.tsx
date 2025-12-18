@@ -9,7 +9,7 @@ import { useLemonUsdcBalance } from '../hooks/useLemonUsdcBalance'
  * Component that allows depositing USDC from Lemon wallet to PoolTogether vault
  * Uses Lemon's callSmartContract to execute approve + deposit transactions
  */
-export const LemonVaultDeposit = () => {
+export const PTVaultDeposit = () => {
     const { wallet, isConnected } = useLemonContext()
     const { vault, tokenAddress, tokenDecimals } = usePoolTogetherContext()
     const { data: usdcBalance, refetch: refetchBalance, isRefetching: isRefetchingBalance } = useLemonUsdcBalance()
@@ -73,32 +73,24 @@ export const LemonVaultDeposit = () => {
             const amountWei = parseUnits(amountNum.toFixed(tokenDecimals), tokenDecimals)
             const amountWeiString = amountWei.toString()
 
-            // Always include approve + deposit in batch transaction
-            const contracts: Array<{
-                contractAddress: `0x${string}`
-                functionName: string
-                functionParams: (string | number)[]
-                value: string
-            }> = [
-                    // Approve token to vault
+            // Execute batch transaction via Lemon SDK
+            const result = await callSmartContract({
+                contracts: [
                     {
                         contractAddress: tokenAddress,
                         functionName: 'approve',
                         functionParams: [vault.address, amountWeiString],
-                        value: '0'
+                        value: '0',
+                        chainId: 8453
                     },
-                    // Deposit to vault
                     {
                         contractAddress: vault.address,
                         functionName: 'deposit',
                         functionParams: [amountWeiString, wallet],
-                        value: '0'
+                        value: '0',
+                        chainId: 8453
                     }
-                ]
-
-            // Execute batch transaction via Lemon SDK
-            const result = await callSmartContract({
-                contracts,
+                ],
             })
 
             if (result.result === TransactionResult.SUCCESS) {
@@ -125,6 +117,38 @@ export const LemonVaultDeposit = () => {
 
     const isLoading = isRefetchingBalance
 
+    // Calculate contract parameters based on current amount
+    const contractParams = useMemo(() => {
+        if (!customAmount || !tokenAddress || !tokenDecimals || !vault || !wallet) {
+            return null
+        }
+
+        const amountNum = parseFloat(customAmount)
+        if (isNaN(amountNum) || amountNum <= 0) {
+            return null
+        }
+
+        const amountWei = parseUnits(amountNum.toFixed(tokenDecimals), tokenDecimals)
+        const amountWeiString = amountWei.toString()
+
+        return {
+            approve: {
+                contractAddress: tokenAddress,
+                functionName: 'approve',
+                functionParams: [vault.address, amountWeiString],
+                value: '0',
+                chainId: 8453
+            },
+            deposit: {
+                contractAddress: vault.address,
+                functionName: 'deposit',
+                functionParams: [amountWeiString, wallet],
+                value: '0',
+                chainId: 8453
+            }
+        }
+    }, [customAmount, tokenAddress, tokenDecimals, vault, wallet])
+
     return (
         <div className="border rounded-lg p-4 space-y-4">
             <h3 className="text-lg font-semibold">Deposit to PoolTogether Vault</h3>
@@ -134,6 +158,37 @@ export const LemonVaultDeposit = () => {
                 <div className="text-sm px-3 py-2 rounded border">
                     Available: <span className="font-semibold">{formatBalance(availableBalance)} USDC</span>
                 </div>
+
+                {/* Contract parameters display */}
+                {contractParams && (
+                    <div className="space-y-2 text-xs border rounded p-3">
+                        <div className="font-semibold mb-2">Smart Contract Parameters:</div>
+
+                        <div className="space-y-3">
+                            <div>
+                                <div className="font-medium mb-1">1. Approve:</div>
+                                <div className="pl-2 space-y-1 font-mono">
+                                    <div>contractAddress: {contractParams.approve.contractAddress}</div>
+                                    <div>functionName: {contractParams.approve.functionName}</div>
+                                    <div>functionParams: [{contractParams.approve.functionParams.join(', ')}]</div>
+                                    <div>value: {contractParams.approve.value}</div>
+                                    <div>chainId: {contractParams.approve.chainId}</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="font-medium mb-1">2. Deposit:</div>
+                                <div className="pl-2 space-y-1 font-mono">
+                                    <div>contractAddress: {contractParams.deposit.contractAddress}</div>
+                                    <div>functionName: {contractParams.deposit.functionName}</div>
+                                    <div>functionParams: [{contractParams.deposit.functionParams.join(', ')}]</div>
+                                    <div>value: {contractParams.deposit.value}</div>
+                                    <div>chainId: {contractParams.deposit.chainId}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/* Custom amount input */}
                 <div className="space-y-2">

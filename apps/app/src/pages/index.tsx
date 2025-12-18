@@ -2,7 +2,7 @@ import {
   LastDrawWinners,
   LemonAccount,
   LemonConnect,
-  LemonVaultDeposit,
+  PTVaultDeposit,
   LemonWebViewError,
   NextDrawTime,
   PrizeTiers,
@@ -34,7 +34,7 @@ const LandingContent = () => {
           <>
             <LemonAccount />
             <br />
-            <LemonVaultDeposit />
+            <PTVaultDeposit />
             <br />
           </>
         )}
