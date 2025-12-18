@@ -2,6 +2,7 @@ import {
   LastDrawWinners,
   LemonAccount,
   LemonConnect,
+  LemonVaultDeposit,
   LemonWebViewError,
   NextDrawTime,
   PrizeTiers,
@@ -32,6 +33,8 @@ const LandingContent = () => {
         ) : (
           <>
             <LemonAccount />
+            <br />
+            <LemonVaultDeposit />
             <br />
           </>
         )}
