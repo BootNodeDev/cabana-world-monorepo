@@ -6,5 +6,6 @@ export * from './LastDrawWinners'
 export * from './LemonConnect'
 export * from './LemonWallet'
 export * from './LemonDeposit'
+export * from './LemonAccount'
 export * from './LemonWebViewError'
 

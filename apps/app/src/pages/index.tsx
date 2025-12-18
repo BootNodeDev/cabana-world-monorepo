@@ -1,8 +1,7 @@
 import {
   LastDrawWinners,
+  LemonAccount,
   LemonConnect,
-  LemonDeposit,
-  LemonWallet,
   LemonWebViewError,
   NextDrawTime,
   PrizeTiers,
@@ -32,10 +31,7 @@ const LandingContent = () => {
           <div>something went wrong</div>
         ) : (
           <>
-            <LemonWallet />
-            <br />
-
-            <LemonDeposit />
+            <LemonAccount />
             <br />
           </>
         )}

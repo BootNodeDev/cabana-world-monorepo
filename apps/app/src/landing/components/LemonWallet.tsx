@@ -27,7 +27,7 @@ export const LemonWallet = () => {
   }
 
   return (
-    <div className="p-4 border rounded-lg">
+    <div>
       {wallet && (
         <div className="space-y-2">
           <div>

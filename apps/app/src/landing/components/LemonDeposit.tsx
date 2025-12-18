@@ -20,7 +20,6 @@ export const LemonDeposit = () => {
   const { data: usdcBalance, refetch: refetchBalance, isRefetching } = useLemonUsdcBalance()
   const [mode, setMode] = useState<Mode>('deposit')
   const [customAmount, setCustomAmount] = useState<string>('')
-  const [isProcessing, setIsProcessing] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
 
   // Calculate available balance in USDC
@@ -58,7 +57,6 @@ export const LemonDeposit = () => {
       return
     }
 
-    setIsProcessing(true)
     setError(null)
 
     try {
@@ -71,7 +69,9 @@ export const LemonDeposit = () => {
       })
 
       if (result.result === TransactionResult.SUCCESS) {
-        await refetchBalance(2000)
+        setTimeout(() => {
+          refetchBalance()
+        }, 2000)
         setCustomAmount('')
       } else if (result.result === TransactionResult.FAILED) {
         setError(result.error.message || 'Deposit failed')
@@ -80,8 +80,6 @@ export const LemonDeposit = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')
-    } finally {
-      setIsProcessing(false)
     }
   }
 
@@ -104,7 +102,6 @@ export const LemonDeposit = () => {
       return
     }
 
-    setIsProcessing(true)
     setError(null)
 
     try {
@@ -116,7 +113,9 @@ export const LemonDeposit = () => {
       })
 
       if (result.result === TransactionResult.SUCCESS) {
-        await refetchBalance(2000)
+        setTimeout(() => {
+          refetchBalance()
+        }, 2000)
         setCustomAmount('')
       } else if (result.result === TransactionResult.FAILED) {
         setError(result.error.message || 'Withdraw failed')
@@ -125,8 +124,6 @@ export const LemonDeposit = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')
-    } finally {
-      setIsProcessing(false)
     }
   }
 
@@ -144,7 +141,7 @@ export const LemonDeposit = () => {
   const isDepositMode = mode === 'deposit'
 
   return (
-    <div className="p-4 border rounded-lg">
+    <div>
       {/* Toggle between deposit and withdraw */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold">
@@ -175,15 +172,15 @@ export const LemonDeposit = () => {
       <div className="space-y-4">
         {/* Fixed amount buttons - only shown in deposit mode */}
         {isDepositMode && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-2 sm:gap-2">
             {FIXED_AMOUNTS.map((amount) => (
               <button
                 key={amount}
                 onClick={() => handleDeposit(amount.toString())}
-                disabled={isProcessing || isRefetching}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
+                disabled={isRefetching}
+                className="px-2 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-sm bg-green-500 text-white rounded hover:bg-green-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
               >
-                ${amount} USDC
+                ${amount}
               </button>
             ))}
           </div>
@@ -193,7 +190,7 @@ export const LemonDeposit = () => {
         <div className="space-y-2">
           {/* Show available balance in withdraw mode */}
           {!isDepositMode && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm bg-gray-800 text-white px-3 py-2 rounded">
               Available: <span className="font-semibold">{formatBalance(availableBalance)} USDC</span>
             </div>
           )}
@@ -210,13 +207,13 @@ export const LemonDeposit = () => {
                 min="0"
                 step="0.01"
                 max={!isDepositMode ? availableBalance : undefined}
-                disabled={isProcessing || isRefetching}
+                disabled={isRefetching}
                 className="w-full px-3 py-2 border rounded disabled:bg-gray-100 pr-16"
               />
               {!isDepositMode && availableBalance > 0 && (
                 <button
                   onClick={handleMaxClick}
-                  disabled={isProcessing || isRefetching}
+                  disabled={isRefetching}
                   className="absolute right-2 top-1/2 -translate-y-1/2 px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-700 disabled:text-gray-400 disabled:cursor-not-allowed"
                 >
                   Max
@@ -226,7 +223,6 @@ export const LemonDeposit = () => {
             <button
               onClick={() => (isDepositMode ? handleDeposit(customAmount) : handleWithdraw())}
               disabled={
-                isProcessing ||
                 isRefetching ||
                 !customAmount ||
                 parseFloat(customAmount) <= 0 ||
@@ -237,13 +233,9 @@ export const LemonDeposit = () => {
                 : 'bg-red-500 hover:bg-red-600'
                 }`}
             >
-              {isProcessing
-                ? isDepositMode
-                  ? 'Depositing...'
-                  : 'Withdrawing...'
-                : isDepositMode
-                  ? 'Deposit'
-                  : 'Withdraw'}
+              {isDepositMode
+                ? 'Deposit'
+                : 'Withdraw'}
             </button>
           </div>
         </div>
@@ -254,13 +246,9 @@ export const LemonDeposit = () => {
         )}
 
         {/* Loading indicator */}
-        {(isProcessing || isRefetching) && (
+        {isRefetching && (
           <div className="text-center text-gray-500">
-            {isProcessing
-              ? isDepositMode
-                ? 'Processing deposit...'
-                : 'Processing withdraw...'
-              : 'Refreshing balance...'}
+            Refreshing balance...
           </div>
         )}
       </div>
