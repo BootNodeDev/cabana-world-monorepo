@@ -111,10 +111,6 @@ export const PTVaultDeposit = () => {
         }
     }
 
-    if (!isConnected || !vault || !tokenAddress || !tokenDecimals) {
-        return null
-    }
-
     const isLoading = isRefetchingBalance
 
     // Calculate contract parameters based on current amount
@@ -133,21 +129,25 @@ export const PTVaultDeposit = () => {
 
         return {
             approve: {
-                contractAddress: tokenAddress,
+                contractAddress: tokenAddress.toLowerCase(),
                 functionName: 'approve',
-                functionParams: [vault.address, amountWeiString],
+                functionParams: [vault.address.toLowerCase(), amountWeiString],
                 value: '0',
                 chainId: 8453
             },
             deposit: {
-                contractAddress: vault.address,
+                contractAddress: vault.address.toLowerCase(),
                 functionName: 'deposit',
-                functionParams: [amountWeiString, wallet],
+                functionParams: [amountWeiString, wallet.toLowerCase()],
                 value: '0',
                 chainId: 8453
             }
         }
     }, [customAmount, tokenAddress, tokenDecimals, vault, wallet])
+
+    if (!isConnected || !vault || !tokenAddress || !tokenDecimals) {
+        return null
+    }
 
     return (
         <div className="border rounded-lg p-4 space-y-4">
