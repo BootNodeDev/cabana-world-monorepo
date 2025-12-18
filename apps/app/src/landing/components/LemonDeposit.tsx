@@ -7,7 +7,7 @@ import { useLemonUsdcBalance } from '../hooks'
 /**
  * Fixed deposit amounts in USDC
  */
-const FIXED_AMOUNTS = [1, 2, 5, 10] as const
+//const FIXED_AMOUNTS = [1, 2, 5, 10] as const
 
 type Mode = 'deposit' | 'withdraw'
 
@@ -171,7 +171,7 @@ export const LemonDeposit = () => {
 
       <div className="space-y-4">
         {/* Fixed amount buttons - only shown in deposit mode */}
-        {isDepositMode && (
+        {/* {isDepositMode && (
           <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-2 sm:gap-2">
             {FIXED_AMOUNTS.map((amount) => (
               <button
@@ -184,7 +184,7 @@ export const LemonDeposit = () => {
               </button>
             ))}
           </div>
-        )}
+        )} */}
 
         {/* Custom amount input */}
         <div className="space-y-2">
@@ -208,7 +208,7 @@ export const LemonDeposit = () => {
                 step="0.01"
                 max={!isDepositMode ? availableBalance : undefined}
                 disabled={isRefetching}
-                className="w-full px-3 py-2 border rounded disabled:bg-gray-100 pr-16"
+                className="w-full px-3 py-2 border rounded disabled:bg-gray-100 pr-16 text-black"
               />
               {!isDepositMode && availableBalance > 0 && (
                 <button

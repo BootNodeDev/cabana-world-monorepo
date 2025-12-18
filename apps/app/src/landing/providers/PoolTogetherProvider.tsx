@@ -1,15 +1,18 @@
 import { PrizePool, Vault } from '@generationsoftware/hyperstructure-client-js'
-import { usePublicClientsByChain } from '@generationsoftware/hyperstructure-react-hooks'
+import { usePublicClientsByChain, useVaultTokenData } from '@generationsoftware/hyperstructure-react-hooks'
 import { PRIZE_POOLS } from '@shared/utilities'
+import { Address } from 'viem'
 import { createContext, ReactNode, useContext, useMemo } from 'react'
 import { VAULT_CONFIG } from '../constants'
 
 /**
- * Context value containing PrizePool and Vault instances
+ * Context value containing PrizePool and Vault instances, plus token information
  */
 interface ContextValue {
   prizePool: PrizePool | undefined
   vault: Vault | undefined
+  tokenAddress: Address | undefined
+  tokenDecimals: number | undefined
 }
 
 const Context = createContext<ContextValue | undefined>(undefined)
@@ -53,12 +56,18 @@ export const PoolTogetherProvider = ({ children }: { children: ReactNode }) => {
     )
   }, [publicClients])
 
+  // Get token data from vault (hook handles undefined with enabled flag)
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+  const { data: tokenData } = useVaultTokenData(vault!)
+
   const value = useMemo(
     () => ({
       prizePool,
-      vault
+      vault,
+      tokenAddress: tokenData?.address,
+      tokenDecimals: tokenData?.decimals
     }),
-    [prizePool, vault]
+    [prizePool, vault, tokenData?.address, tokenData?.decimals]
   )
 
   return <Context.Provider value={value}>{children}</Context.Provider>

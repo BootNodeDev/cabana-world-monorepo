@@ -16,9 +16,9 @@ import { LemonProvider, PoolTogetherProvider, useLemonContext } from 'src/landin
 const LandingContent = () => {
   const { isWebView, isConnecting, wallet } = useLemonContext()
 
-  if (!isWebView) {
-    return <LemonWebViewError />
-  }
+  // if (!isWebView) {
+  //   return <LemonWebViewError />
+  // }
 
   return (
     <PoolTogetherProvider>

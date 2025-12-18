@@ -3,16 +3,13 @@ import { TokenWithAmount } from '@shared/types'
 import { NETWORK } from '@shared/utilities'
 import { Address } from 'viem'
 import { useLemonContext } from '../providers/LemonProvider'
-
-/**
- * USDC token address on Base chain
- */
-const USDC_BASE_ADDRESS = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' as Address
+import { usePoolTogetherContext } from '../providers/PoolTogetherProvider'
 
 type TokenBalanceResult = ReturnType<typeof useTokenBalance>
 
 /**
- * Returns the USDC balance for the Lemon wallet
+ * Returns the token balance for the Lemon wallet
+ * Uses token address from PoolTogetherProvider
  * Refetches every 10 seconds
  */
 export const useLemonUsdcBalance = (): {
@@ -22,16 +19,17 @@ export const useLemonUsdcBalance = (): {
   refetch: TokenBalanceResult['refetch']
 } => {
   const { wallet, isConnected } = useLemonContext()
+  const { tokenAddress } = usePoolTogetherContext()
 
   const tokenBalanceResult = useTokenBalance(
     NETWORK.base,
     wallet?.toLowerCase() as Address,
-    USDC_BASE_ADDRESS.toLowerCase() as Address
+    tokenAddress?.toLowerCase() as Address
   )
 
   return {
-    data: wallet && isConnected ? tokenBalanceResult.data : undefined,
-    isFetched: tokenBalanceResult.isFetched && !!wallet && isConnected,
+    data: wallet && isConnected && tokenAddress ? tokenBalanceResult.data : undefined,
+    isFetched: tokenBalanceResult.isFetched && !!wallet && isConnected && !!tokenAddress,
     isRefetching: tokenBalanceResult.isFetching ?? false,
     refetch: tokenBalanceResult.refetch
   }
