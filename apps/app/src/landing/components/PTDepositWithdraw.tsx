@@ -18,9 +18,9 @@ export const PTDepositWithdraw = () => {
   const { wallet, isConnected } = useLemonContext()
   const { vault, tokenAddress, tokenDecimals } = usePoolTogetherContext()
   const { data: usdcBalance, refetch: refetchBalance, isRefetching: isRefetchingBalance } = useLemonUsdcBalance()
-  
+
   // Get user's vault token balance for withdraw
-  const { data: vaultTokenBalance, refetch: refetchVaultBalance, isRefetching: isRefetchingVaultBalance } = useUserVaultTokenBalance(
+  const { data: vaultTokenBalance, refetch: refetchVaultBalance, isFetched: isFetchedVaultBalance } = useUserVaultTokenBalance(
     vault!,
     wallet as Address,
     undefined
@@ -208,7 +208,7 @@ export const PTDepositWithdraw = () => {
   }
 
   const isDepositMode = mode === 'deposit'
-  const isLoading = isRefetchingBalance || isRefetchingVaultBalance
+  const isLoading = isRefetchingBalance || !isFetchedVaultBalance
 
   return (
     <div>
