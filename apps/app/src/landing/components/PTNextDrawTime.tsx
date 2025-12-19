@@ -18,7 +18,7 @@ const renderCountdown = (props: CountdownRenderProps) => {
  * Displays the next draw time for the prize pool
  * Shows: "Se sortea en: Xd Xh Xm Xs"
  */
-export const NextDrawTime = () => {
+export const PTNextDrawTime = () => {
   const { data: nextDrawTimestamp, isFetched } = useNextDrawTime()
 
   if (!isFetched) {

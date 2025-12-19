@@ -2,11 +2,11 @@ import {
   LastDrawWinners,
   LemonAccount,
   LemonConnect,
-  PTVaultDeposit,
+  PTAccount,
   LemonWebViewError,
-  NextDrawTime,
-  PrizeTiers,
-  TotalDeposited
+  PTNextDrawTime,
+  PTPrizeTiers,
+  PTTotalDeposited
 } from 'src/landing/components'
 import { LemonProvider, PoolTogetherProvider, useLemonContext } from 'src/landing/providers'
 
@@ -34,18 +34,18 @@ const LandingContent = () => {
           <>
             <LemonAccount />
             <br />
-            <PTVaultDeposit />
+            <PTAccount />
             <br />
           </>
         )}
 
-        <TotalDeposited />
+        <PTTotalDeposited />
         <br />
 
-        <NextDrawTime />
+        <PTNextDrawTime />
         <br />
 
-        <PrizeTiers />
+        <PTPrizeTiers />
         <br />
 
         <LastDrawWinners />

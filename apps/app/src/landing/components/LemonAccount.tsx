@@ -1,5 +1,5 @@
 import { useLemonContext } from '../providers/LemonProvider'
-import { LemonDeposit } from './LemonDeposit'
+import { LemonDepositWithdraw } from './LemonDepositWithdraw'
 import { LemonWallet } from './LemonWallet'
 
 /**
@@ -16,7 +16,7 @@ export const LemonAccount = () => {
   return (
     <div className="border rounded-lg p-4 space-y-4">
       <LemonWallet />
-      <LemonDeposit />
+      <LemonDepositWithdraw />
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { TIER_MAPPING, TIER_FALLBACK } from '../constants'
  * Displays prize tiers
  * Shows: emoji, name, prize amount, and winner count for each tier
  */
-export const PrizeTiers = () => {
+export const PTPrizeTiers = () => {
   const { data: tiers, isFetched } = usePrizeTiers()
 
   if (!isFetched) {
