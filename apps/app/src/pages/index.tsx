@@ -1,7 +1,6 @@
 import {
   LastDrawWinners,
   LemonAccount,
-  LemonConnect,
   PTAccount,
   LemonWebViewError,
   PTNextDrawTime,
