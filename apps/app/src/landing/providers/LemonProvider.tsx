@@ -21,10 +21,10 @@ const Context = createContext<ContextValue | undefined>(undefined)
  * Handles authentication and provides wallet address to children
  */
 export const LemonProvider = ({ children }: { children: ReactNode }) => {
-  // const [wallet, setWallet] = useState<Address | undefined>(undefined)
-  // const [isConnected, setIsConnected] = useState<boolean>(false)
-  const [wallet, setWallet] = useState<Address | undefined>('0xe2508c36B8900B14CcEe900D000b3c80Fc9Dd3b0')
-  const [isConnected, setIsConnected] = useState<boolean>(true)
+  const [wallet, setWallet] = useState<Address | undefined>(undefined)
+  const [isConnected, setIsConnected] = useState<boolean>(false)
+  // const [wallet, setWallet] = useState<Address | undefined>('0xe2508c36B8900B14CcEe900D000b3c80Fc9Dd3b0')
+  // const [isConnected, setIsConnected] = useState<boolean>(true)
 
   const [isConnecting, setIsConnecting] = useState<boolean>(false)
   const [isInWebView, setIsInWebView] = useState<boolean>(false)
