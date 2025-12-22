@@ -1,5 +1,6 @@
 import { callSmartContract, TransactionResult } from '@lemoncash/mini-app-sdk'
-import { useUserVaultTokenBalance } from '@generationsoftware/hyperstructure-react-hooks'
+import { useUserVaultShareBalance, useVaultExchangeRate } from '@generationsoftware/hyperstructure-react-hooks'
+import { getSharesFromAssets, getAssetsFromShares } from '@shared/utilities'
 import { useState } from 'react'
 import { formatUnits, parseUnits } from 'viem'
 import { Address } from 'viem'
@@ -16,21 +17,31 @@ export const PTWithdraw = () => {
   const { vault, tokenAddress, tokenDecimals } = usePoolTogetherContext()
   const { refetch: refetchBalance } = useLemonUsdcBalance()
 
-  // Get user's vault token balance for withdraw
-  const { data: vaultTokenBalance, refetch: refetchVaultBalance, isFetched: isFetchedVaultBalance } = useUserVaultTokenBalance(
+  // Get user's vault share balance for redeem (following WithdrawTxButton pattern)
+  const { data: vaultShareBalance, refetch: refetchVaultBalance, isFetched: isFetchedVaultBalance } = useUserVaultShareBalance(
     vault!,
     wallet as Address,
     undefined
   )
 
+  // Get vault exchange rate to convert between shares and assets (following WithdrawTxButton pattern)
+  const { data: vaultExchangeRate, isFetched: isFetchedExchangeRate } = useVaultExchangeRate(vault!)
+
   const [customAmount, setCustomAmount] = useState<string>('')
   const [error, setError] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState<boolean>(false)
 
-  // Calculate available balance in USDC
-  const availableBalance = vaultTokenBalance
-    ? parseFloat(formatUnits(vaultTokenBalance.amount, vaultTokenBalance.decimals))
-    : 0
+  // Calculate available balance in USDC (convert shares to assets for display)
+  // Following the pattern from WithdrawTxButton: getAssetsFromShares(shareBalance, exchangeRate, decimals)
+  const availableBalance =
+    vaultShareBalance && vaultExchangeRate && tokenDecimals
+      ? parseFloat(
+          formatUnits(
+            getAssetsFromShares(vaultShareBalance.amount, vaultExchangeRate, tokenDecimals),
+            tokenDecimals
+          )
+        )
+      : 0
 
   // Format balance for display
   const formatBalance = (balance: number) => {
@@ -48,7 +59,7 @@ export const PTWithdraw = () => {
     }
   }
 
-  // Handle withdraw from vault transaction
+  // Handle redeem from vault transaction (following WithdrawTxButton pattern)
   const handleWithdraw = async () => {
     if (!isConnected || !wallet || !vault) {
       setError('Wallet or vault not available')
@@ -70,25 +81,48 @@ export const PTWithdraw = () => {
     setError(null)
     setIsProcessing(true)
 
-    if (!tokenAddress || !tokenDecimals) {
-      setError('Token information not available')
+    if (!tokenAddress || !tokenDecimals || !vaultExchangeRate) {
+      setError('Token information or exchange rate not available')
       setIsProcessing(false)
       return
     }
 
     try {
-      // Convert amount to wei using token decimals from vault
-      const amountWei = parseUnits(amountNum.toFixed(tokenDecimals), tokenDecimals)
-      const amountWeiString = amountWei.toString()
+      // Convert user input (assets) to wei
+      // Following WithdrawTxButton: parseUnits(formShareAmount, decimals) but we have assets
+      const assetsWei = parseUnits(amountNum.toFixed(tokenDecimals), tokenDecimals)
+      
+      // Convert assets to shares using exchange rate
+      // Following WithdrawTxButton pattern: getSharesFromAssets(assets, exchangeRate, decimals)
+      const sharesWei = getSharesFromAssets(assetsWei, vaultExchangeRate, tokenDecimals)
+      
+      // Validate shares don't exceed available share balance
+      if (!vaultShareBalance || sharesWei > vaultShareBalance.amount) {
+        setError('Insufficient share balance')
+        setIsProcessing(false)
+        return
+      }
+      
+      // Calculate expected asset amount (minAssets) for slippage protection
+      // Following WithdrawTxButton: getAssetsFromShares(withdrawAmount, vaultExchangeRate, decimals)
+      const expectedAssetAmount = getAssetsFromShares(sharesWei, vaultExchangeRate, tokenDecimals)
+      
+      const sharesWeiString = sharesWei.toString()
+      const minAssetsWeiString = expectedAssetAmount.toString()
 
-      // Execute withdraw transaction via Lemon SDK
-      // withdraw(uint256 _assets, address _receiver, address _owner)
+      // Execute redeem transaction via Lemon SDK
+      // Following useSend5792RedeemTransaction pattern: redeem(uint256 _shares, address _receiver, address _owner, uint256 _minAssets)
       const result = await callSmartContract({
         contracts: [
           {
             contractAddress: vault.address.toLowerCase() as `0x${string}`,
-            functionName: 'withdraw',
-            functionParams: [amountWeiString, wallet.toLowerCase() as `0x${string}`, wallet.toLowerCase() as `0x${string}`],
+            functionName: 'redeem',
+            functionParams: [
+              sharesWeiString,
+              wallet.toLowerCase() as `0x${string}`,
+              wallet.toLowerCase() as `0x${string}`,
+              minAssetsWeiString
+            ],
             value: '0',
             chainId: 8453
           }
@@ -96,16 +130,16 @@ export const PTWithdraw = () => {
       })
 
       if (result.result === TransactionResult.SUCCESS) {
-        // Wait a bit for blockchain to update
+        // Wait a bit for blockchain to update (following WithdrawTxButton: 7000ms timeout)
         setTimeout(() => {
           refetchBalance()
           refetchVaultBalance()
         }, 2000)
         setCustomAmount('')
       } else if (result.result === TransactionResult.FAILED) {
-        setError(result.error.message || 'Withdraw failed')
+        setError(result.error.message || 'Redeem failed')
       } else if (result.result === TransactionResult.CANCELLED) {
-        setError('Withdraw cancelled by user')
+        setError('Redeem cancelled by user')
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error occurred')
@@ -118,7 +152,8 @@ export const PTWithdraw = () => {
     return null
   }
 
-  const isLoading = !isFetchedVaultBalance
+  // Loading state: wait for both share balance and exchange rate (following WithdrawTxButton pattern)
+  const isLoading = !isFetchedVaultBalance || !isFetchedExchangeRate
 
   return (
     <FundsInput
@@ -142,4 +177,5 @@ export const PTWithdraw = () => {
     />
   )
 }
+
 
